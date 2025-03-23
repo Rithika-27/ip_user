@@ -8,18 +8,40 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!memberId || !password) {
       Alert.alert("Error", "Please enter Member ID and Password.");
       return;
     }
 
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          member_id: memberId.trim(),
+          date_of_birth: password.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed. Please try again.");
+      }
+
+      Alert.alert("Login Successful", `Welcome ${data.user.name}!`);
+      router.replace("/mainpage"); // Navigate to main page
+
+    } catch (error) {
+      Alert.alert("Login Error");
+    } finally {
       setLoading(false);
-      Alert.alert("Login Successful", "Welcome to LiBreeze!");
-      router.replace("/mainpage"); // Simulated navigation
-    }, 2000);
+    }
   };
 
   return (
@@ -104,3 +126,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
