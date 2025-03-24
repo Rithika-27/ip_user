@@ -1,19 +1,70 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../components/header";
 import Footer from "../components/footer";
 
 const ProfileScreen = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+
+        if (!token) {
+          console.log("No token found, redirecting to login...");
+          router.push("/screens/login");
+          return;
+        }
+
+        const response = await fetch("http://localhost:5000/api/profile/getDetails", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile details");
+        }
+
+        const data = await response.json();
+        setUser(data || {}); // Ensure user is always an object
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        Alert.alert("Error", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#5DB6A2" style={styles.loading} />;
+  }
 
   return (
     <View style={styles.mainContainer}>
       <Header />
       <View style={styles.container}>
         <View style={styles.header}>
-          <Image source={require("../assets/images/profile.png")} style={styles.profileImage} />
-          <Text style={styles.name}>POOJA DAS</Text>
-          <Text style={styles.email}>22z396@psgtech.ac.in</Text>
+          <Image 
+            source={user?.profileImage ? { uri: user.profileImage } : require("../assets/images/profile.png")}
+            style={styles.profileImage} 
+          />
+          <Text style={styles.detail}>
+            <Text style={styles.bold}>Name:</Text> {user?.name || "Not Available"}
+          </Text>
+          <Text style={styles.detail}>
+            <Text style={styles.bold}>Roll Number:</Text> {user?.member_id || "Not Available"}
+          </Text>
         </View>
 
         <TouchableOpacity style={styles.button} onPress={() => router.push("/userdetails")}>
@@ -35,14 +86,14 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1, // Takes full height
+    flex: 1,
     backgroundColor: "#EAF7F1",
-    justifyContent: "space-between", // Pushes footer to the bottom
+    justifyContent: "space-between",
   },
   container: {
-    flex: 1, // Ensures content expands fully
+    flex: 1,
     alignItems: "center",
-    padding: 20, // Reduced padding to avoid unnecessary spacing
+    padding: 20,
   },
   header: {
     alignItems: "center",
@@ -54,17 +105,14 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     marginBottom: 10,
   },
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  email: {
-    backgroundColor: "#C0E8D5",
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 20,
+  detail: {
+    fontSize: 16,
     color: "#2D7F5E",
-    fontSize: 14,
+    marginBottom: 5,
+  },
+  bold: {
+    fontWeight: "bold",
+    color: "#184E42",
   },
   button: {
     width: "80%",
@@ -79,6 +127,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#2D7F5E",
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
