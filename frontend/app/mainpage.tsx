@@ -54,13 +54,18 @@ export default function MainPage() {
           </ScrollView>
         </View>
       </View>
+
       {/* Categories Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Categories</Text>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.grid}>
             {categoryData.map((item, index) => (
-              <TouchableOpacity key={index} style={styles.categoryItem} onPress={() => router.push("/category")}> 
+              <TouchableOpacity 
+                key={index} 
+                style={styles.categoryItem} 
+                onPress={() => router.push(`/category?name=${encodeURIComponent(item.name)}`)}
+              > 
                 <Image source={item.image} style={styles.categoryImage} />
                 <Text style={styles.categoryText}>{item.name}</Text>
               </TouchableOpacity>
@@ -91,56 +96,56 @@ const styles = StyleSheet.create({
     color: "white",
   },
   sectionTitle: {
-    paddingLeft: 20, // Ensures both section titles start from the same position
+    paddingLeft: 20,
     fontSize: 24,
     fontWeight: "900",
     textTransform: "uppercase",
     marginBottom: 10,
-    fontFamily: "Arial", // Changed font
+    fontFamily: "Arial",
   },
   bellIcon: {
     width: 24,
     height: 24,
   },
   suggestionContainer: {
-    paddingHorizontal: 20, // Aligns with section title
+    paddingHorizontal: 20,
     paddingBottom: 20,
-    marginTop: 20, // Added space between header and suggestions
+    marginTop: 20,
   },
   suggestionScroll: {
     flexDirection: "row",
   },
   suggestionBackground: {
-    paddingLeft: 20, // Aligns with section title
+    paddingLeft: 20,
   },
   suggestionItem: {
     alignItems: "center",
     marginRight: 15,
-    width: 180, // Adjust width for a rectangular shape
-    height: 220, // Increased height for the title below the image
-    borderRadius: 15, // Rounded edges
-    overflow: "hidden", // Ensure image doesn't overflow
-    backgroundColor: "#fff", // Background color for the suggestion box
-    shadowColor: "#000", // Add shadow for a more 3D look
+    width: 180,
+    height: 220,
+    borderRadius: 15,
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
-    justifyContent: "center", // Center the content vertically
+    justifyContent: "center",
   },
   bookImage: {
     width: "100%",
-    height: "80%", // Image takes 80% of the height
+    height: "80%",
     borderRadius: 10,
   },
   bookTitle: {
     fontSize: 14,
     fontWeight: "bold",
-    marginTop: 10, // Adds space between the image and title
+    marginTop: 10,
     textAlign: "center",
   },
   section: {
-    paddingHorizontal: 20, // Ensures alignment with section title
-    marginTop: 20, // Added space between sections
+    paddingHorizontal: 20,
+    marginTop: 20,
   },
   grid: {
     flexDirection: "row",
