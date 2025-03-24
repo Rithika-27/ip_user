@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -34,11 +35,14 @@ export default function LoginScreen() {
         throw new Error(data.message || "Login failed. Please try again.");
       }
 
+      // Store token in AsyncStorage
+      await AsyncStorage.setItem("token", data.token);
+      
       Alert.alert("Login Successful", `Welcome ${data.user.name}!`);
       router.replace("/mainpage"); // Navigate to main page
 
     } catch (error) {
-      Alert.alert("Login Error");
+      Alert.alert("Login Error", error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

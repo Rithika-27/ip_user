@@ -5,7 +5,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const libraryRoutes = require("./routes/libraryRoutes"); // Changed variable name
-
+const verifyToken = require("./middleware/authMiddleware");
 dotenv.config();
 
 const app = express();
@@ -23,8 +23,9 @@ mongoose
 
 // Define Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/books", bookRoutes);   // Books-related operations
-app.use("/api/library", libraryRoutes); // Library-related operations
+app.use("/api/books", verifyToken,bookRoutes);  
+app.use("/api/books", verifyToken,bookRoutes);  
+app.use("/api/library", libraryRoutes); 
 
 // Start Server
 const PORT = process.env.PORT || 5000;

@@ -20,7 +20,7 @@ const ProfileScreen = () => {
         <Text style={styles.buttonText}>USER DETAILS</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/borrowingactivity")}>
+      <TouchableOpacity style={styles.button} onPress={() => router.push("/mybooks")}>
         <Text style={styles.buttonText}>BORROWING ACTIVITY</Text>
       </TouchableOpacity>
 

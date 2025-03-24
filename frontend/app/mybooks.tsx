@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import { useRouter } from "expo-router";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function MyBooksPage() {
   const [books, setBooks] = useState([]);
@@ -11,16 +12,43 @@ export default function MyBooksPage() {
   const router = useRouter();
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/books/myBooks") // Adjust for production
-      .then((response) => {
-        setBooks(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
+    const fetchBooks = async () => {
+      setLoading(true);
+      try {
+        const token = await AsyncStorage.getItem("token");
+        if (!token) {
+          console.error("No token found, redirecting to login...");
+          router.push("/screens/login");
+          return;
+        }
+
+        const response = await axios.get("http://localhost:5000/api/books/myBooks", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const updatedBooks = response.data.borrowing_activity.map(book => {
+          const borrowedDate = new Date(book.date_borrowed);
+          const dueDate = new Date(borrowedDate);
+          dueDate.setDate(dueDate.getDate() + 14);
+          const currentDate = new Date();
+          const timeDiff = dueDate - currentDate;
+          const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+          return {
+            ...book,
+            daysLeft,
+            overdue: daysLeft < 0,
+          };
+        });
+
+        setBooks(updatedBooks);
+      } catch (error) {
         console.error("Error fetching books:", error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchBooks();
   }, []);
 
   return (
@@ -30,27 +58,23 @@ export default function MyBooksPage() {
         <View style={{ padding: 15 }}>
           <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}>My books ({books.length})</Text>
           
-          {loading ? <ActivityIndicator size="large" color="#5ABAB7" /> : 
+          {loading ? (
+            <ActivityIndicator size="large" color="#5ABAB7" />
+          ) : (
             books.map((book, index) => (
               <View 
                 key={index} 
                 style={{ flexDirection: "row", backgroundColor: "white", padding: 15, borderRadius: 10, marginTop: 10, alignItems: "center", shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5, elevation: 2 }}
               >
-                {/* Book Image */}
-                {/* <Image source={{ uri: book.image }} style={{ width: 50, height: 70, borderRadius: 5, marginRight: 10 }} /> */}
-
-                {/* Book Details */}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: "bold", color: "#333" }}>{book.title}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: "bold", color: "#333" }}>{book.book_name}</Text>
                   <Text style={{ fontSize: 12, color: "gray" }}>{book.author}</Text>
                   {book.overdue ? (
                     <Text style={{ color: "red", fontSize: 12 }}>Overdue</Text>
                   ) : (
-                    <Text style={{ color: "gray", fontSize: 12 }}>{book.daysLeft}</Text>
+                    <Text style={{ color: "gray", fontSize: 12 }}>{book.daysLeft} days left</Text>
                   )}
                 </View>
-
-                {/* Button to Navigate */}
                 <TouchableOpacity
                   style={{
                     backgroundColor: book.overdue ? "#FF6B6B" : "#5ABAB7",
@@ -59,18 +83,14 @@ export default function MyBooksPage() {
                     borderRadius: 5,
                   }}
                   onPress={() => {
-                    if (book.status === "Renew") {
-                      router.push("/renew");
-                    } else {
-                      router.push("/fine");
-                    }
+                    router.push(book.status === "Renew" ? "/renew" : "/fine");
                   }}
                 >
                   <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>{book.status}</Text>
                 </TouchableOpacity>
               </View>
             ))
-          }
+          )}
         </View>
       </ScrollView>
       <Footer />

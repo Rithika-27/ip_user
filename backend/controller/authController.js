@@ -11,7 +11,7 @@ let db, Student, Users;
 (async () => {
     try {
         await client.connect();
-        console.log("✅ Connected to MongoDB");
+        console.log("✅ Connected to MongoDB(auth)");
         db = client.db("library-data");
         Student = db.collection("STUDENT");
         Users = db.collection("users");

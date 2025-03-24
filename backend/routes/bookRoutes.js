@@ -1,8 +1,10 @@
 const express = require("express");
-const router = express.Router();
-const { getMyBooks }= require("../controller/bookController");
+const { getMyBooks } = require("../controller/bookController");
+const verifyToken = require("../middleware/authMiddleware");
 
-// Route to get books
-router.get("/mybooks", getMyBooks);
+const router = express.Router();
+
+// Protected route: Requires authentication
+router.get("/myBooks", verifyToken, getMyBooks);
 
 module.exports = router;
