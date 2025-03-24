@@ -19,7 +19,7 @@ const categoryData = [
   { name: "Electronics", image: require("../assets/images/electronics.jpg") },
   { name: "Metallurgy", image: require("../assets/images/metallurgy.jpg") },
   { name: "Textile", image: require("../assets/images/textile.jpg") },
-  { name: "AutoMobile", image: require("../assets/images/auto.jpg") },
+  { name: "Automobile", image: require("../assets/images/auto.jpg") },
   { name: "Biomedical", image: require("../assets/images/bio.jpg") },
   { name: "Production", image: require("../assets/images/pro.jpg") },
   { name: "Robotics", image: require("../assets/images/Robo.jpg") },

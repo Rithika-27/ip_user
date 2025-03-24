@@ -6,6 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const libraryRoutes = require("./routes/libraryRoutes");
 const profileRoutes= require("./routes/profileRoutes");
+const wishlistRoutes=require("./routes/wishlistRoutes")
 const verifyToken = require("./middleware/authMiddleware");
 dotenv.config();
 
@@ -26,6 +27,7 @@ mongoose
 app.use("/api/auth", authRoutes);
 app.use("/api/books", verifyToken,bookRoutes);  
 app.use("/api/profile", verifyToken,profileRoutes);  
+app.use("/api/wishlist", verifyToken,wishlistRoutes); 
 app.use("/api/library", libraryRoutes); 
 
 // Start Server

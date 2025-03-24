@@ -1,155 +1,175 @@
-import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
 import Footer from "../components/footer";
-import Header from "../components/header";
-const Wishlist = () => {
-  // Simulating book availability
-  const [isBookAvailable, setIsBookAvailable] = useState(true);
+import {
+  View,
+  Text,
+  Image,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  ToastAndroid,
+  ScrollView,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
-  const bookDetails = {
-    title: "Automata Theory, Languages, and Computation",
-    author: "John E. Hopcroft, Rajeev Motwani, and Jeffrey D. Ullman",
-    rating: 5,
-    genre: "Theoretical Computer Science",
-    takenUntil: "07.01.2025",
-    imageUrl: require("../assets/images/book1.png"),
-    description:
-      "The study of automata theory, formal languages, and computation is fundamental to understanding the theoretical underpinnings of computer science. This book provides a rigorous understanding of these topics while emphasizing their relevance to modern computing.",
+const Wishlist = () => {
+  const [wishlist, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const userToken = await AsyncStorage.getItem("token");
+
+        if (!userToken) {
+          console.log("No token found, redirecting...");
+          navigation.navigate("Login");
+          return;
+        }
+
+        const response = await fetch("http://localhost:5000/api/wishlist/get", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch wishlist");
+        }
+
+        setWishlist(data.wishlist || []);
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+        Alert.alert("Error", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWishlist();
+  }, []);
+
+  const removeFromWishlist = async (bookId, bookTitle) => {
+    try {
+      const userToken = await AsyncStorage.getItem("token");
+
+      const response = await fetch("http://localhost:5000/api/wishlist/remove",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ bookId }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to remove book");
+      }
+
+      setWishlist(wishlist.filter((book) => book.bookId !== bookId));
+      ToastAndroid.show(`${bookTitle} removed from wishlist`, ToastAndroid.SHORT);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
   };
 
   return (
-    <view>
-        <Header />
-    
     <View style={styles.container}>
-      
+      <Text style={styles.header}>Your Wishlist</Text>
 
-      {isBookAvailable ? (
-        <View style={styles.bookContainer}>
-          <Image source={require("../assets/images/digital_electronics.png")} style={styles.image} />
-          <Text style={styles.title}>{bookDetails.title}</Text>
-          <Text style={styles.author}>{bookDetails.author}</Text>
-
-          <Text style={styles.rating}>Rating: ⭐⭐⭐⭐⭐</Text>
-          <Text style={styles.genre}>Genre: {bookDetails.genre}</Text>
-
-          <Text style={styles.description}>{bookDetails.description}</Text>
-
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Save to Wishlist</Text>
-          </TouchableOpacity>
-        </View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#5DB6A2" />
+      ) : wishlist.length === 0 ? (
+        <Text style={styles.emptyText}>Your wishlist is empty.</Text>
       ) : (
-        <View style={styles.unavailableContainer}>
-          <Text style={styles.unavailableText}>WISHLIST</Text>
-          <Image source={{ uri: bookDetails.imageUrl }} style={styles.image} />
-          <Text style={styles.title}>{bookDetails.title}</Text>
-          <Text style={styles.author}>{bookDetails.author}</Text>
-
-          <Text style={styles.rating}>Rating: ⭐⭐⭐⭐⭐</Text>
-          <Text style={styles.genre}>Genre: {bookDetails.genre}</Text>
-
-          <Text style={styles.takenUntil}>
-            <Text style={{ color: "red", fontWeight: "bold" }}>
-              Taken until: {bookDetails.takenUntil}
-            </Text>
-          </Text>
-
-          <Text style={styles.notificationText}>
-            You will be notified as soon as the book becomes available. Please
-            check your notifications for updates!
-          </Text>
-          
-        </View>
-        
-        
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {wishlist.map((book) => (
+            <View key={book.bookId} style={styles.bookContainer}>
+              <Image source={{ uri: book.image }} style={styles.image} />
+              <View style={styles.details}>
+                <Text style={styles.title}>{book.title}</Text>
+                <Text style={styles.author}>{book.author}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => removeFromWishlist(book.bookId, book.title)}
+                style={styles.removeButton}
+              >
+                <Ionicons name="close-circle" size={24} color="red" />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
       )}
-    
+
+      <Footer />
     </View>
-    <Footer />
-    </view>
-    
-    
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 70,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#EAF7F1",
+  },
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   header: {
-    fontSize: 24,
-    fontStyle: "italic",
+    fontSize: 22,
     fontWeight: "bold",
-    color: "#2D7F5E",
     textAlign: "center",
-    marginBottom: 20,
+    marginVertical: 10,
+  },
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "gray",
+    marginTop: 20,
   },
   bookContainer: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
     alignItems: "center",
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   image: {
-    width: 150,
-    height: 220,
-    marginBottom: 10,
+    width: 80,
+    height: 120,
+    marginRight: 15,
+    borderRadius: 5,
+  },
+  details: {
+    flex: 1,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center",
   },
   author: {
     fontSize: 14,
-    textAlign: "center",
     color: "gray",
   },
-  rating: {
-    fontSize: 16,
-    marginVertical: 5,
-  },
-  genre: {
-    fontSize: 16,
-    fontStyle: "italic",
-    color: "#555",
-  },
-  description: {
-    textAlign: "center",
-    fontSize: 14,
-    marginVertical: 10,
-    paddingHorizontal: 10,
-  },
-  button: {
-    marginTop: 10,
-    backgroundColor: "#5DB6A2",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  unavailableContainer: {
-    alignItems: "center",
-  },
-  unavailableText: {
-    fontSize: 22,
-    fontStyle: "italic",
-    color: "gray",
-  },
-  takenUntil: {
-    fontSize: 16,
-    marginVertical: 5,
-  },
-  notificationText: {
-    fontSize: 14,
-    fontStyle: "italic",
-    textAlign: "center",
-    marginTop: 10,
-    color: "#777",
+  removeButton: {
+    padding: 5,
   },
 });
 
