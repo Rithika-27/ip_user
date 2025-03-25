@@ -6,7 +6,8 @@ const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const libraryRoutes = require("./routes/libraryRoutes");
 const profileRoutes= require("./routes/profileRoutes");
-const wishlistRoutes=require("./routes/wishlistRoutes")
+const wishlistRoutes=require("./routes/wishlistRoutes");
+const suggestionRoutes = require("./routes/suggestionRoutes");
 const verifyToken = require("./middleware/authMiddleware");
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/books", verifyToken,bookRoutes);
 app.use("/api/profile", verifyToken,profileRoutes);  
 app.use("/api/wishlist", verifyToken,wishlistRoutes); 
 app.use("/api/library", libraryRoutes); 
+app.use("/api/suggestbook",suggestionRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
