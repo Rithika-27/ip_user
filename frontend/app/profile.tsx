@@ -59,12 +59,7 @@ const ProfileScreen = () => {
             source={user?.profileImage ? { uri: user.profileImage } : require("../assets/images/profile.png")}
             style={styles.profileImage} 
           />
-          <Text style={styles.detail}>
-            <Text style={styles.bold}>Name:</Text> {user?.name || "Not Available"}
-          </Text>
-          <Text style={styles.detail}>
-            <Text style={styles.bold}>Roll Number:</Text> {user?.member_id || "Not Available"}
-          </Text>
+          
         </View>
 
         <TouchableOpacity style={styles.button} onPress={() => router.push("/userdetails")}>

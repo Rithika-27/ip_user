@@ -19,26 +19,31 @@ const updateBorrowingActivity = async () => {
         title: "Clean Code",
         author: "Robert C. Martin",
         borrowedDate: "2025-03-10",
+        noOfRenewals: 0,
       },
       {
         title: "The Pragmatic Programmer",
         author: "Andrew Hunt & David Thomas",
         borrowedDate: "2025-03-20",
+        noOfRenewals: 0,
       },
       {
         title: "Design Patterns",
         author: "Erich Gamma et al.",
         borrowedDate: "2025-03-18",
+        noOfRenewals: 0,
       },
       {
         title: "Refactoring",
         author: "Martin Fowler",
         borrowedDate: "2025-03-16",
+        noOfRenewals: 0,
       },
       {
         title: "You Don't Know JS",
         author: "Kyle Simpson",
         borrowedDate: "2025-03-14",
+        noOfRenewals: 0,
       },
     ];
 

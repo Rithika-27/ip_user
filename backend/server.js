@@ -9,6 +9,7 @@ const profileRoutes= require("./routes/profileRoutes");
 const wishlistRoutes=require("./routes/wishlistRoutes");
 const suggestionRoutes = require("./routes/suggestionRoutes");
 const verifyToken = require("./middleware/authMiddleware");
+const borrowingRoutes=require("./routes/borrowingRoutes");
 dotenv.config();
 
 const app = express();
@@ -31,6 +32,8 @@ app.use("/api/profile", verifyToken,profileRoutes);
 app.use("/api/wishlist", verifyToken,wishlistRoutes); 
 app.use("/api/library", libraryRoutes); 
 app.use("/api/suggestbook",suggestionRoutes);
+app.use("/api/borrowing", borrowingRoutes);
+
 
 // Start Server
 const PORT = process.env.PORT || 5000;
