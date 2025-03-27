@@ -9,12 +9,12 @@ export default function Layout() {
       <Stack.Screen name="mainpage" />
       <Stack.Screen name="category" />
       <Stack.Screen name="mybooks" />
-      <Stack.Screen name="renew" />
       <Stack.Screen name="fine" />
       <Stack.Screen name="wishlist" />
       <Stack.Screen name="profile" />
       <Stack.Screen name="userdetails" />
       <Stack.Screen name="borrowingactivity" />
+      <Stack.Screen name="renew/[bookTitle]" /> {/* Add this line */}
     </Stack>
   );
 }
