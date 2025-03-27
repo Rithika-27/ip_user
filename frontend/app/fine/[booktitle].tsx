@@ -1,25 +1,36 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Header from "../../components/header";
 
-const RenewScreen = () => {
+const FinePaymentScreen = () => {
   const router = useRouter();
-  const { title, author, dueDate } = useLocalSearchParams();
+  const { booktitle, author, dueDate } = useLocalSearchParams();
 
-  if (!title || !author || !dueDate) {
+  if (!booktitle || !author || !dueDate) {
     return (
       <View style={styles.container}>
-        <Text style={{ fontSize: 16, fontWeight: "bold", color: "red" }}>
-          Invalid Book Data
-        </Text>
+        <Text style={styles.errorText}>Invalid Book Data</Text>
       </View>
     );
   }
 
-  // Calculate new due date (14 days extension)
-  const newDueDate = new Date(dueDate);
-  newDueDate.setDate(newDueDate.getDate() + 14);
+  // Convert dueDate to a Date object
+  const dueDateObj = new Date(dueDate);
+  const currentDate = new Date();
+
+  // Calculate the difference in days
+  const timeDiff = currentDate - dueDateObj;
+  const daysLate = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+  // Calculate fine (₹2 per day late)
+  const fine = daysLate > 0 ? daysLate * 2 : 0;
+
+  const handleFinePayment = () => {
+    Alert.alert("Payment Successful", `You have paid ₹${fine} successfully!`, [
+      { text: "OK", onPress: () => router.back() },
+    ]);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F7FCFA" }}>
@@ -27,49 +38,38 @@ const RenewScreen = () => {
       <Header />
 
       <View style={styles.container}>
-        <Text style={styles.instructionText}>
-          You're renewing a borrowed book. Please review the details below.
-        </Text>
+        <Text style={styles.instructionText}>Please review the details below:</Text>
 
-        {/* Book Details Box */}
+        {/* Fine Details Box */}
         <View style={styles.bookDetails}>
-          <Text style={styles.boldText}>Book Title: "{title}"</Text>
-          <Text style={styles.normalText}>Author: {author}</Text>
-          <Text style={styles.normalText}>Current Due Date: {dueDate}</Text>
-          <Text style={styles.normalText}>
-            New Due Date: {newDueDate.toISOString().split("T")[0]}
-          </Text>
+          <Text style={styles.boldText}>📖 Book Title: "{booktitle}"</Text>
+          <Text style={styles.normalText}>✍️ Author: {author}</Text>
+          <Text style={styles.normalText}>📅 Due Date: {dueDate}</Text>
+          {fine > 0 ? (
+            <Text style={styles.fineText}>⚠️ DUE AMOUNT: ₹{fine}</Text>
+          ) : (
+            <Text style={styles.noFineText}>✅ No fine to pay!</Text>
+          )}
         </View>
 
-        {/* Renewal Information */}
-        <Text style={styles.renewalInfo}>
-          You have <Text style={styles.italicText}>2 renewals</Text> remaining for this book
-        </Text>
+        {/* Fine Payment Confirmation */}
+        {fine > 0 && (
+          <>
+            <Text style={styles.confirmText}>
+              Please pay a fine of <Text style={styles.boldText}>₹{fine}</Text>.
+            </Text>
 
-        {/* Confirmation Box */}
-        <View style={styles.confirmBox}>
-          <Text style={styles.confirmText}>
-            Are you sure you want to renew "{title}"?
-          </Text>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity onPress={handleFinePayment} style={styles.payButton}>
+                <Text style={styles.buttonText}>Pay Fine</Text>
+              </TouchableOpacity>
 
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              onPress={() => router.push("/renewsuccess")}
-              style={styles.yesButton}
-            >
-              <Text style={styles.buttonText}>Yes</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => router.back()} style={styles.noButton}>
-              <Text style={styles.noButtonText}>No</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Note */}
-        <Text style={styles.note}>
-          Books must be returned by the new due date to avoid late fees.
-        </Text>
+              <TouchableOpacity onPress={() => router.back()} style={styles.cancelButton}>
+                <Text style={styles.cancelButtonText}>Back</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
     </View>
   );
@@ -77,59 +77,39 @@ const RenewScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#F7FCFA" },
-  instructionText: { fontSize: 14, textAlign: "center", marginBottom: 10 },
+  errorText: { fontSize: 16, fontWeight: "bold", color: "red", textAlign: "center" },
+  instructionText: { fontSize: 16, fontWeight: "bold", marginBottom: 10, textAlign: "center" },
   bookDetails: {
     backgroundColor: "#EAF7F1",
     padding: 20,
     borderRadius: 10,
-    marginBottom: 30,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
   },
-  boldText: { fontWeight: "bold", fontSize: 16, marginBottom: 5 },
-  normalText: { fontSize: 14 },
-  renewalInfo: {
-    fontSize: 14,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 10,
-  },
-  italicText: { fontStyle: "italic" },
-  confirmBox: {
-    backgroundColor: "#FFFFFF",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-  },
+  boldText: { fontWeight: "bold", fontSize: 16 },
+  normalText: { fontSize: 14, marginBottom: 5 },
+  fineText: { fontSize: 18, fontWeight: "bold", color: "red", marginTop: 10 },
+  noFineText: { fontSize: 16, fontWeight: "bold", color: "green", marginTop: 10 },
   confirmText: { fontSize: 14, textAlign: "center", marginBottom: 10 },
-  buttonRow: {
-    flexDirection: "row",
-    marginTop: 10,
-    justifyContent: "space-around",
-    width: "100%",
-  },
-  yesButton: {
+  buttonRow: { flexDirection: "row", marginTop: 20, justifyContent: "space-around" },
+  payButton: {
     backgroundColor: "#5DB6A2",
-    paddingVertical: 10,
-    paddingHorizontal: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
     borderRadius: 5,
   },
-  noButton: {
+  cancelButton: {
     borderColor: "#5DB6A2",
     borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
     borderRadius: 5,
   },
-  buttonText: { color: "white", fontWeight: "bold" },
-  noButtonText: { color: "#5DB6A2", fontWeight: "bold" },
-  note: { fontSize: 12, textAlign: "center", marginTop: 15, color: "gray" },
+  buttonText: { color: "white", fontWeight: "bold", textAlign: "center" },
+  cancelButtonText: { color: "#5DB6A2", fontWeight: "bold", textAlign: "center" },
 });
 
-export default RenewScreen;
+export default FinePaymentScreen;

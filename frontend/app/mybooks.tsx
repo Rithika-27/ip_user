@@ -114,19 +114,18 @@ export default function MyBooksPage() {
                     borderRadius: 5,
                   }}
                   onPress={() => {
-                    if (book.status === "Renew") {
-                      router.push({
-                        pathname: `/renew/${book.title}`,
-                        params: {
-                          title: book.title,
-                          author: book.author,
-                          dueDate: book.dueDate,
-                        },
-                      });
-                    } else {
-                      router.push(`/fine/${book.title}`);
-                    }
+                    const routePath = book.status === "Renew" ? "/renew/" : "/fine/";
+                    router.push({
+                      pathname: `${routePath}${book.title}`,
+                      params: {
+                        title: book.title,
+                        author: book.author,
+                        dueDate: book.dueDate,
+                      },
+                    });
                   }}
+                  
+              
                 >
                   <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>{book.status}</Text>
                 </TouchableOpacity>
