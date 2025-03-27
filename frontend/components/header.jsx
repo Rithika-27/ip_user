@@ -5,9 +5,7 @@ const Header = () => {
   return (
     <View style={styles.header}>
       <Text style={styles.title}>LiBreeze</Text>
-      <TouchableOpacity onPress={() => console.log("Bell icon pressed")}>
-        <Image source={require("../assets/images/bell.png")} style={styles.bellIcon} />
-      </TouchableOpacity>
+      
     </View>
   );
 };

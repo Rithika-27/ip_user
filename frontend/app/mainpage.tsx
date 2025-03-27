@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import Footer from "../components/footer";
+import Navbar from "../components/header"
 
 export default function MainPage() {
   const router = useRouter();
@@ -39,13 +40,7 @@ export default function MainPage() {
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>LiBreeze</Text>
-        <TouchableOpacity>
-          <Image source={require("../assets/images/bell.png")} style={styles.bellIcon} />
-        </TouchableOpacity>
-      </View>
-
+      <Navbar />
       {/* Suggestions Section */}
       <View style={styles.section}>
   <Text style={styles.sectionTitle}>Suggestions</Text>

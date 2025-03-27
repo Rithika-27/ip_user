@@ -9,7 +9,7 @@ export default function Layout() {
       <Stack.Screen name="mainpage" />
       <Stack.Screen name="category" />
       <Stack.Screen name="mybooks" />
-      <Stack.Screen name="fine" />
+      <Stack.Screen name="fine/[bookTitle]" />
       <Stack.Screen name="wishlist" />
       <Stack.Screen name="profile" />
       <Stack.Screen name="userdetails" />

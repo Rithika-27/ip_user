@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Footer from "../components/footer";
+import Navbar from "../components/header"
 import {
   View,
   Text,
@@ -87,6 +88,7 @@ const Wishlist = () => {
 
   return (
     <View style={styles.container}>
+      <Navbar />
       <Text style={styles.header}>Your Wishlist</Text>
 
       {loading ? (

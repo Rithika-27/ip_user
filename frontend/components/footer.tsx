@@ -26,9 +26,7 @@ const Footer = () => {
         <FontAwesome5 name="book" size={24} color="#2D2D4B" />
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/login")}>
-        <FontAwesome5 name="search" size={24} color="#2D2D4B" />
-      </TouchableOpacity>
+      
 
       <TouchableOpacity onPress={() => router.push("/wishlist")}>
         <FontAwesome5 name="heart" size={24} color="#2D2D4B" />

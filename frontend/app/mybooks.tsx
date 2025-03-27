@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import Footer from "../components/footer";
-import Header from "../components/header";
+import Navbar from "../components/header"
 import { useRouter } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -69,9 +69,11 @@ export default function MyBooksPage() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F5F5F5" }}>
-      <Header />
+      <Navbar />
       <ScrollView>
+     
         <View style={{ padding: 15 }}>
+        
           <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}>
             My books ({books.length})
           </Text>
@@ -122,7 +124,7 @@ export default function MyBooksPage() {
                         },
                       });
                     } else {
-                      router.push("/fine");
+                      router.push(`/fine/${book.title}`);
                     }
                   }}
                 >
